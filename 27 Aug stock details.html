@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stock Dashboard</title>
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --secondary: #34495e;
+      --accent: #16a085;
+      --bg: #ecf0f1;
+      --white: #ffffff;
+      --text-dark: #2d3436;
+      --text-light: #7f8c8d;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+    }
+
+    .sidebar {
+      background-color: var(--primary);
+      color: var(--white);
+      width: 220px;
+      padding: 20px;
+      flex-shrink: 0;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    .location {
+      padding: 12px 15px;
+      margin-bottom: 12px;
+      background-color: var(--secondary);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 0.95rem;
+    }
+
+    .location:hover {
+      background-color: var(--accent);
+    }
+
+    .content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .content h2 {
+      margin-bottom: 20px;
+      color: var(--text-dark);
+      font-size: 1.4rem;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section h3 {
+      font-size: 1.1rem;
+      color: var(--primary);
+      margin-bottom: 10px;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 5px;
+    }
+
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .card {
+      background-color: var(--white);
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      padding: 10px 15px;
+      width: 160px;
+      transition: transform 0.2s;
+    }
+
+    .card:hover {
+      transform: scale(1.03);
+    }
+
+    .card h4 {
+      font-size: 0.85rem;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    .card p {
+      font-size: 0.95rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px;
+      }
+
+      .sidebar h2 {
+        display: none;
+      }
+
+      .location {
+        margin: 0 8px;
+        padding: 10px 12px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+      }
+
+      .card {
+        width: 48%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <h2>Locations</h2>
+      <div class="location" onclick="loadStock('savda')">1. Savda</div>
+      <div class="location" onclick="loadStock('akluj')">2. Akluj</div>
+      <div class="location" onclick="loadStock('jamner')">3. Jamner</div>
+      <div class="location" onclick="loadStock('chopada')">4. Shirpur_Chopada</div>
+    </div>
+
+    <div class="content">
+      <h2 id="locationTitle">Select a location to view stock</h2>
+
+      <div class="section" id="inwardSection">
+        <h3>Inward</h3>
+        <div class="cards" id="inwardCards"></div>
+      </div>
+
+      <div class="section" id="outwardSection">
+        <h3>Outward</h3>
+        <div class="cards" id="outwardCards"></div>
+      </div>
+
+      <div class="section" id="balanceSection">
+        <h3>Balance</h3>
+        <div class="cards" id="balanceCards"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const stockData = {
+      savda: {
+        Inward: {},
+        Outward: {},
+        Balance: {
+          "King Brown Box (Nos)": 2300,
+          "Bandhan Premium": 1500,
+          "Alaa white Box (Nos)": 500,
+          "Roshana Box (Nos)": 0,
+          "Laibaah Box (Nos)": 350,
+          "Haniya Box (Nos)": 800,
+          "Shabad Box(Nos)": 280,
+          "Vaccum Bag 13kg": 2050,
+          "PE Form 1.5 MM (Nos)": 49500,
+          "Sachets (Nos)": 7650,
+          "Fevicol (kg)": 326,
+          "Germination Paper (kg)": 363,
+          "Fungicide (kg)": 14,
+          "Truti (kg)": 545,
+          "Bleaching Powder (g)": 8.9,
+          "Rubber (kg)": 2.5,
+          "King Sticker (Nos)": 56000,
+          "Alaa Sticker (Nos)": 4650000,
+          "Roshana Sticker (Nos)": 2610000,
+          "Other Sticker": 2520000
+        }
+      },
+
+      akluj: {
+        Inward: {},
+        Outward: {
+          "Laibaah 7 KG Top": "2159 nos",
+          "Laibaah 7 KG Bottom": "2159 nos",
+          "Laibaah Airpad": "2159 nos",
+          "Haniya 5 KG Top": "273 nos",
+          "Haniya 5 KG Bottom": "273 nos",
+          "Vaccum Bag 13kg": "110.55 KG",
+          "PE Form 1.5 MM": "14592 nos",
+          "Sachets": "2432 nos",
+          "fevicol": "4 KG",
+          "Germination Paper": "48.64 KG",
+          "Fungicide (Ban crab)": "6 KG",
+          "Truti (kg)": "15 KG",
+          "Bleaching Powder": "0.3 G",
+          "Rubber": "1.5 KG"
+        },
+        Balance: {
+          "Roshana Box Top": 5459,
+          "Roshana Box Bottom": 6151,
+          "Roshana Airpad": 2339,
+          "Laibaah 7 KG Top": 2521,
+          "Laibaah 7 KG Bottom": 9531,
+          "Laibaah Airpad": 1341,
+          "Haniya 5 KG Top": 407,
+          "Haniya 5 KG Bottom": 4837,
+          "Vaccum Bag 13kg": 1010.86,
+          "Vaccum Bag 7kg": 729.45,
+          "PE Form 1.5 MM": 101542,
+          "Sachets": 8307,
+          "fevicol": 0,
+          "Germination Paper": 165.14,
+          "Fungicide (Ban crab)": 486,
+          "Truti (kg)": 60,
+          "Bleaching Powder": 1.2,
+          "Rubber": 11,
+          "Roshana Sticker (Nos)": 357146,
+          "Bandhan Stickers (Nos)": 600000,
+          "Alaa Stickers (Nos)": 600000
+        }
+      },
+
+      chopada: {
+        Inward: {},
+        Outward: {
+          "Roshana Box (Nos)": 684,
+          "Vaccum Bag 13kg": "31.09 KG",
+          "PE Form 1.5 MM (Nos)": 4104,
+          "Sachets (Nos)": 684,
+          "fevicol (kg)": 3,
+          "Germination Paper (kg)": 13.68,
+          "Fungicide (kg)": 1.5,
+          "Truti (kg)": 5,
+          "Bleaching Powder (g)": 0.1,
+          "Rubber (kg)": 0.4,
+          "Roshana Sticker (Nos)": 9576
+        },
+        Balance: {
+          "Roshana Box (Nos)": 12197,
+          "Vaccum Bag 13kg": 264.36,
+          "PE Form 1.5 MM (Nos)": 10454,
+          "Sachets (Nos)": 10659,
+          "fevicol (kg)": 100,
+          "Germination Paper (kg)": 263.16,
+          "Fungicide (kg)": 24.5,
+          "Truti (kg)": 35,
+          "Bleaching Powder (g)": 2.7,
+          "Rubber (kg)": 7.6,
+          "Roshana Sticker (Nos)": 829226
+        }
+      },
+
+      jamner: {
+        Inward: {
+          "Shadab Banana": "33 nos",
+          "Sachets (Nos)": "8000 nos",
+          "Truti (kg)": "15 KG",
+          "Rubber (kg)": "14 KG"
+        },
+        Outward: {
+          "Roshana Box (Nos)": 755,
+          "Vaccum Bag 13kg": "154.32 KG",
+          "PE Form 1.5 MM (Nos)": 11530,
+          "Sachets (Nos)": 755,
+          "fevicol (kg)": 4,
+          "Germination Paper (kg)": 15.1,
+          "Fungicide (kg)": 2,
+          "Truti (kg)": 5,
+          "Bleaching Powder (g)": 0.1,
+          "Rubber (kg)": 0.5,
+          "Roshana Sticker (Nos)": 10570
+        },
+        Balance: {
+          "Roshana Box (Nos)": 6242,
+          "Vaccum Bag 13kg": 1071.772,
+          "PE Form 1.5 MM (Nos)": 106452,
+          "Sachets (Nos)": 14742,
+          "fevicol (kg)": 22.5,
+          "Germination Paper (kg)": 159.84,
+          "Fungicide (kg)": 18,
+          "Truti (kg)": 115,
+          "Bleaching Powder (g)": 4,
+          "Rubber (kg)": 14,
+          "Roshana Sticker (Nos)": 210416,
+          "Shadab Banana": 33
+        }
+      }
+    };
+
+    function loadStock(location) {
+      const data = stockData[location];
+      document.getElementById("locationTitle").innerText = `Stock at ${location.toUpperCase()}`;
+      loadCards(data.Inward, "inwardCards");
+      loadCards(data.Outward, "outwardCards");
+      loadCards(data.Balance, "balanceCards");
+    }
+
+    function loadCards(items, containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      for (let item in items) {
+        const value = items[item];
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `<h4>${item}</h4><p>${value}</p>`;
+        container.appendChild(card);
+      }
+    }
+  </script>
+</body>
+</html>
